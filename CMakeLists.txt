@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(QuickCut VERSION 0.1.0 LANGUAGES CXX)
+project(QuickCut VERSION 0.1.1 LANGUAGES CXX)
 
 set(PROJECT_DESCRIPTION "Lightweight video cutter powered by ffmpeg")
 set(PROJECT_AUTHOR "Nathan")
