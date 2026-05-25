@@ -34,6 +34,7 @@ bool VideoProcessor::processing() const { return m_processing; }
 QString VideoProcessor::status() const { return m_status; }
 double VideoProcessor::fps() const { return m_fps; }
 QString VideoProcessor::waveformPath() const { return m_waveformPath; }
+bool VideoProcessor::isVfr() const { return m_isVfr; }
 
 Q_INVOKABLE int VideoProcessor::frameDurationMs() const {
     return m_fps > 0 ? qRound(1000.0 / m_fps) : 33;
@@ -270,7 +271,10 @@ void VideoProcessor::processNextSegment() {
 }
 
 void VideoProcessor::concatSegments() {
-    setStatus("Concatenating...");
+    if (m_isVfr)
+        setStatus("Concatenating (re-encoding for variable frame rate)...");
+    else
+        setStatus("Concatenating...");
 
     auto *proc = new QProcess(this);
     QStringList args = {
@@ -278,9 +282,18 @@ void VideoProcessor::concatSegments() {
         "-f", "concat",
         "-safe", "0",
         "-i", m_concatFilePath,
-        "-c", "copy",
-        m_finalOutputPath
     };
+
+    if (m_isVfr) {
+        args << "-c:v" << "libx264"
+             << "-preset" << "fast"
+             << "-crf" << "18"
+             << "-c:a" << "aac" << "-b:a" << "192k";
+    } else {
+        args << "-c" << "copy";
+    }
+
+    args << m_finalOutputPath;
 
     connect(proc, &QProcess::finished, this, [this, proc](int exitCode) {
         cleanTempDir(m_realTmpDir);
@@ -323,22 +336,33 @@ void VideoProcessor::probefps() {
     QStringList args = {
         "-v", "error",
         "-select_streams", "v:0",
-        "-show_entries", "stream=r_frame_rate",
+        "-show_entries", "stream=r_frame_rate:stream=avg_frame_rate",
         "-of", "csv=p=0",
         m_sourceFile
     };
     connect(proc, &QProcess::finished, this, [this, proc](int code) {
         if (code == 0) {
-            auto out = proc->readAllStandardOutput().trimmed();
-            auto parts = out.split('/');
-            if (parts.size() == 2) {
-                double num = parts[0].toDouble();
-                double den = parts[1].toDouble();
-                if (den > 0) {
-                    m_fps = num / den;
-                    emit fpsChanged();
+            auto out = QString::fromUtf8(proc->readAllStandardOutput()).trimmed();
+            auto lines = out.split('\n');
+            double rFps = 0;
+            double aFps = 0;
+            for (const auto &line : lines) {
+                auto parts = line.split('/');
+                if (parts.size() == 2) {
+                    double num = parts[0].toDouble();
+                    double den = parts[1].toDouble();
+                    if (den > 0) {
+                        if (rFps == 0) rFps = num / den;
+                        else aFps = num / den;
+                    }
                 }
             }
+            if (rFps > 0) {
+                m_fps = rFps;
+                emit fpsChanged();
+            }
+            m_isVfr = (rFps > 0 && aFps > 0 && qAbs(rFps - aFps) > 1.0);
+            emit isVfrChanged();
         }
         proc->deleteLater();
     });

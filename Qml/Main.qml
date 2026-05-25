@@ -14,6 +14,26 @@ Window {
     color: "#0e0e0e"
     flags: Qt.Window | Qt.FramelessWindowHint
 
+    property bool _maximized: false
+    property var _savedGeometry: ({})
+
+    function toggleMaximize() {
+        if (_maximized) {
+            _maximized = false
+            root.x = _savedGeometry.x
+            root.y = _savedGeometry.y
+            root.width = _savedGeometry.width
+            root.height = _savedGeometry.height
+        } else {
+            _savedGeometry = {"x": root.x, "y": root.y, "width": root.width, "height": root.height}
+            _maximized = true
+            root.x = 0
+            root.y = 0
+            root.width = Screen.width
+            root.height = Screen.height
+        }
+    }
+
     property int inPointMs: 0
     property int outPointMs: player.duration
     property var removeSegments: []
@@ -190,7 +210,7 @@ Window {
             MouseArea {
                 anchors.fill: parent
                 onPressed: (mouse) => root.startSystemMove()
-                onDoubleClicked: root.visibility === Window.Maximized ? root.showNormal() : root.showMaximized()
+                onDoubleClicked: root.toggleMaximize()
             }
 
             Rectangle {
@@ -268,7 +288,7 @@ Window {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.visibility === Window.Maximized ? root.showNormal() : root.showMaximized()
+                        onClicked: root.toggleMaximize()
                     }
                 }
 
@@ -543,7 +563,7 @@ Window {
 
                 IconButton {
                     iconName: "cut"
-                    tooltip: "Export cut  (Ctrl+S)"
+                    tooltip: processor.isVfr ? "Export cut (Ctrl+S) VFR: re-encode" : "Export cut (Ctrl+S)"
                     enabled: root.hasVideo && !processor.processing
                     accent: true
                     onClicked: saveBrowser.open()

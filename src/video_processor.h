@@ -16,6 +16,7 @@ class VideoProcessor : public QObject {
     Q_PROPERTY(QString status READ status NOTIFY statusChanged)
     Q_PROPERTY(double fps READ fps NOTIFY fpsChanged)
     Q_PROPERTY(QString waveformPath READ waveformPath NOTIFY waveformPathChanged)
+    Q_PROPERTY(bool isVfr READ isVfr NOTIFY isVfrChanged)
 
 public:
     explicit VideoProcessor(QObject *parent = nullptr);
@@ -27,6 +28,7 @@ public:
     QString status() const;
     double fps() const;
     QString waveformPath() const;
+    bool isVfr() const;
 
     Q_INVOKABLE int frameDurationMs() const;
     Q_INVOKABLE void cut(qint64 startMs, qint64 endMs, const QString &outputPath,
@@ -41,6 +43,7 @@ signals:
     void fpsChanged();
     void cutFinished(bool success);
     void waveformPathChanged();
+    void isVfrChanged();
 
 private:
     void setStatus(const QString &s);
@@ -57,6 +60,7 @@ private:
     QString m_status;
     double m_fps = 0;
     QString m_waveformPath;
+    bool m_isVfr = false;
 
     QStringList m_segmentFiles;
     QList<QPair<qint64, qint64>> m_segmentTimestamps;
