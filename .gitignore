@@ -1,0 +1,46 @@
+# Build directories
+build/
+build-win/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.clangd
+
+# Compiled objects
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+
+# Qt auto-generated
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+*.qm
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake.in
+compile_commands.json
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Distribution
+*.AppImage
+*.flatpak
+pkg/
+
+# AUR working dir
+*.pkg.tar.zst
+src/

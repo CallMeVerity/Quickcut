@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=QuickCut
+GenericName=Video Cutter
+Comment=Lightweight video cutter powered by ffmpeg
+Exec=quickcut %F
+Icon=quickcut
+Terminal=false
+StartupWMClass=quickcut
+Categories=AudioVideo;Video;AudioVideoEditing;
+MimeType=video/mp4;video/x-matroska;video/avi;video/quicktime;video/webm;

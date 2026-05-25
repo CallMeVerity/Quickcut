@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>quickcut</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>QuickCut</name>
+  <summary>Lightweight video cutter powered by ffmpeg</summary>
+  <description>
+    <p>QuickCut is a minimal video cutter that lets you trim, cut, and mute segments of video files without re-encoding. It uses ffmpeg under the hood for fast, lossless cuts.</p>
+  </description>
+  <developer id="callmeverity">
+    <name>Nathan</name>
+  </developer>
+  <url type="homepage">https://github.com/CallMeVerity/Quickcut</url>
+  <url type="bugtracker">https://github.com/CallMeVerity/Quickcut/issues</url>
+  <recommends>
+    <id>org.freedesktop.Platform.ffmpeg</id>
+  </recommends>
+  <provides>
+    <binary>quickcut</binary>
+  </provides>
+  <content_rating type="oars-1.1" />
+  <launchable type="desktop-id">quickcut.desktop</launchable>
+</component>
