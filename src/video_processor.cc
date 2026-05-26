@@ -2,6 +2,7 @@
 #include <QUrl>
 #include <QTextStream>
 #include <QDebug>
+#include <algorithm>
 
 VideoProcessor::VideoProcessor(QObject *parent) : QObject(parent) {
     QDir tmpDir(QDir::tempPath());
@@ -336,7 +337,7 @@ void VideoProcessor::probefps() {
     QStringList args = {
         "-v", "error",
         "-select_streams", "v:0",
-        "-show_entries", "stream=r_frame_rate:stream=avg_frame_rate",
+        "-show_entries", "stream=r_frame_rate",
         "-of", "csv=p=0",
         m_sourceFile
     };
@@ -345,15 +346,14 @@ void VideoProcessor::probefps() {
             auto out = QString::fromUtf8(proc->readAllStandardOutput()).trimmed();
             auto lines = out.split('\n');
             double rFps = 0;
-            double aFps = 0;
             for (const auto &line : lines) {
                 auto parts = line.split('/');
                 if (parts.size() == 2) {
                     double num = parts[0].toDouble();
                     double den = parts[1].toDouble();
                     if (den > 0) {
-                        if (rFps == 0) rFps = num / den;
-                        else aFps = num / den;
+                        rFps = num / den;
+                        break;
                     }
                 }
             }
@@ -361,10 +361,72 @@ void VideoProcessor::probefps() {
                 m_fps = rFps;
                 emit fpsChanged();
             }
-            m_isVfr = (rFps > 0 && aFps > 0 && qAbs(rFps - aFps) > 1.0);
+            probeVfrFromTimestamps();
+        } else {
+            proc->deleteLater();
             emit isVfrChanged();
         }
+    });
+    proc->start("ffprobe", args);
+}
+
+void VideoProcessor::probeVfrFromTimestamps() {
+    auto *proc = new QProcess(this);
+    QStringList args = {
+        "-v", "error",
+        "-select_streams", "v:0",
+        "-show_entries", "packet=pts_time",
+        "-of", "csv=p=0",
+        "-read_intervals", "%+300",
+        m_sourceFile
+    };
+    connect(proc, &QProcess::finished, this, [this, proc](int code) {
         proc->deleteLater();
+        if (code != 0) {
+            emit isVfrChanged();
+            return;
+        }
+        auto out = QString::fromUtf8(proc->readAllStandardOutput()).trimmed();
+        if (out.isEmpty()) {
+            emit isVfrChanged();
+            return;
+        }
+
+        QVector<double> pts;
+        for (const auto &line : out.split('\n')) {
+            bool ok = false;
+            double t = line.trimmed().toDouble(&ok);
+            if (ok && t >= 0) pts.append(t);
+        }
+        if (pts.size() < 4) {
+            emit isVfrChanged();
+            return;
+        }
+
+        std::sort(pts.begin(), pts.end());
+
+        QVector<double> durations;
+        for (int i = 1; i < pts.size(); ++i) {
+            double d = pts[i] - pts[i - 1];
+            if (d > 0) durations.append(d);
+        }
+        if (durations.size() < 3) {
+            emit isVfrChanged();
+            return;
+        }
+
+        double mean = 0;
+        for (double d : durations) mean += d;
+        mean /= durations.size();
+
+        double maxDev = 0;
+        for (double d : durations) {
+            double dev = qAbs(d - mean) / mean;
+            if (dev > maxDev) maxDev = dev;
+        }
+
+        if (maxDev > 0.25) m_isVfr = true;
+        emit isVfrChanged();
     });
     proc->start("ffprobe", args);
 }

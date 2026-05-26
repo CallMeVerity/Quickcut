@@ -12,6 +12,7 @@ int main(int argc, char *argv[]) {
             "qt.multimedia*=false;"
             "qt.qpa*=false;"
             "qt.imageformats*=false");
+    qputenv("QT_MEDIA_BACKEND", "ffmpeg");
     qputenv("LIBVA_MESSAGING_LEVEL", "0");
     qputenv("VDPAU_LOG", "0");
 
