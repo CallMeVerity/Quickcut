@@ -10,29 +10,8 @@ Window {
     minimumWidth: 720
     minimumHeight: 480
     visible: true
-    title: "QuickCut"
+    title: "QuickCut 0.1.2"
     color: "#0e0e0e"
-    flags: Qt.Window | Qt.FramelessWindowHint
-
-    property bool _maximized: false
-    property var _savedGeometry: ({})
-
-    function toggleMaximize() {
-        if (_maximized) {
-            _maximized = false
-            root.x = _savedGeometry.x
-            root.y = _savedGeometry.y
-            root.width = _savedGeometry.width
-            root.height = _savedGeometry.height
-        } else {
-            _savedGeometry = {"x": root.x, "y": root.y, "width": root.width, "height": root.height}
-            _maximized = true
-            root.x = 0
-            root.y = 0
-            root.width = Screen.width
-            root.height = Screen.height
-        }
-    }
 
     property int inPointMs: 0
     property int outPointMs: player.duration
@@ -186,7 +165,7 @@ Window {
 
     Timer {
         id: seekTimer
-        interval: 16
+        interval: 50
         onTriggered: player.position = seekTimer._targetMs
         property int _targetMs: 0
     }
@@ -204,130 +183,6 @@ Window {
 
         Rectangle {
             Layout.fillWidth: true
-            height: 36
-            color: "#141414"
-
-            MouseArea {
-                anchors.fill: parent
-                onPressed: (mouse) => root.startSystemMove()
-                onDoubleClicked: root.toggleMaximize()
-            }
-
-            Rectangle {
-                anchors.bottom: parent.bottom
-                anchors.left: parent.left
-                anchors.right: parent.right
-                height: 1
-                color: "#222222"
-            }
-
-            Text {
-                anchors.left: parent.left
-                anchors.leftMargin: 12
-                anchors.verticalCenter: parent.verticalCenter
-                text: "QuickCut"
-                color: "#555555"
-                font.pixelSize: 12
-                font.weight: Font.DemiBold
-            }
-
-            Row {
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                spacing: 0
-
-                Rectangle {
-                    width: 40
-                    height: 36
-                    color: winMinBtn.containsMouse ? "#252525" : "transparent"
-
-                    Canvas {
-                        anchors.centerIn: parent
-                        width: 10; height: 1
-                        onPaint: {
-                            var ctx = getContext("2d")
-                            ctx.reset()
-                            ctx.fillStyle = winMinBtn.containsMouse ? "#e0e0e0" : "#888888"
-                            ctx.fillRect(0, 0, 10, 1)
-                        }
-                        property bool _hov: winMinBtn.containsMouse
-                        on_HovChanged: requestPaint()
-                    }
-
-                    MouseArea {
-                        id: winMinBtn
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: root.showMinimized()
-                    }
-                }
-
-                Rectangle {
-                    width: 40
-                    height: 36
-                    color: winMaxBtn.containsMouse ? "#252525" : "transparent"
-
-                    Canvas {
-                        anchors.centerIn: parent
-                        width: 10; height: 10
-                        onPaint: {
-                            var ctx = getContext("2d")
-                            ctx.reset()
-                            ctx.strokeStyle = winMaxBtn.containsMouse ? "#e0e0e0" : "#888888"
-                            ctx.lineWidth = 1.5
-                            ctx.strokeRect(0, 0, 10, 10)
-                        }
-                        property bool _hov: winMaxBtn.containsMouse
-                        on_HovChanged: requestPaint()
-                    }
-
-                    MouseArea {
-                        id: winMaxBtn
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: root.toggleMaximize()
-                    }
-                }
-
-                Rectangle {
-                    width: 40
-                    height: 36
-                    color: winCloseBtn.containsMouse ? "#e81123" : "transparent"
-
-                    Canvas {
-                        anchors.centerIn: parent
-                        width: 10; height: 10
-                        onPaint: {
-                            var ctx = getContext("2d")
-                            ctx.reset()
-                            ctx.strokeStyle = winCloseBtn.containsMouse ? "#ffffff" : "#888888"
-                            ctx.lineWidth = 1.5
-                            ctx.lineCap = "round"
-                            ctx.beginPath()
-                            ctx.moveTo(0, 0); ctx.lineTo(10, 10)
-                            ctx.moveTo(10, 0); ctx.lineTo(0, 10)
-                            ctx.stroke()
-                        }
-                        property bool _hov: winCloseBtn.containsMouse
-                        on_HovChanged: requestPaint()
-                    }
-
-                    MouseArea {
-                        id: winCloseBtn
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: root.close()
-                    }
-                }
-            }
-        }
-
-        Rectangle {
-            Layout.fillWidth: true
             Layout.fillHeight: true
             color: "#000000"
 
@@ -335,6 +190,10 @@ Window {
                 id: videoOut
                 anchors.fill: parent
                 fillMode: VideoOutput.PreserveAspectFit
+                Component.onCompleted: {
+                    if (videoSink)
+                        videoSink.hardwareAccelerationEnabled = false
+                }
             }
 
             Column {

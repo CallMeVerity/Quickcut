@@ -53,6 +53,7 @@ private:
     void concatSegments();
     void cleanTempDir(const QString &path);
     void probefps();
+    void probeVfrFromTimestamps();
     void generateWaveform();
 
     QString m_sourceFile;
