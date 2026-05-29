@@ -1,11 +1,11 @@
 [Desktop Entry]
 Type=Application
-Name=QuickCut
+Name=E-Z Cut
 GenericName=Video Cutter
 Comment=Lightweight video cutter powered by ffmpeg
-Exec=quickcut %F
-Icon=quickcut
+Exec=ezcut %F
+Icon=ezcut
 Terminal=false
-StartupWMClass=quickcut
+StartupWMClass=ezcut
 Categories=AudioVideo;Video;AudioVideoEditing;
 MimeType=video/mp4;video/x-matroska;video/avi;video/quicktime;video/webm;

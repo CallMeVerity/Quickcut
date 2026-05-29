@@ -1,7 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
-import QuickCut
+import ezcut
 
 Rectangle {
     id: browser

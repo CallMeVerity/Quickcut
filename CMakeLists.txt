@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
-project(QuickCut VERSION 0.1.2 LANGUAGES CXX)
+project(ezcut VERSION 0.1.3 LANGUAGES CXX)
 
 set(PROJECT_DESCRIPTION "Lightweight video cutter powered by ffmpeg")
-set(PROJECT_AUTHOR "Nathan")
+set(PROJECT_AUTHOR "E-Z")
 set(PROJECT_LICENSE "MIT")
 
 set(CMAKE_CXX_STANDARD 20)
@@ -15,15 +15,16 @@ find_package(Qt6 REQUIRED COMPONENTS Quick QuickControls2 Multimedia)
 qt_policy(SET QTP0001 NEW)
 qt_policy(SET QTP0004 NEW)
 
-qt_add_executable(quickcut
+qt_add_executable(ezcut
     src/main.cc
     src/dir_lister.cc
     src/video_processor.cc
 )
 
-qt_add_qml_module(quickcut
-    URI QuickCut
+qt_add_qml_module(ezcut
+    URI ezcut
     VERSION 1.0
+    OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/qml/ezcut
     QML_FILES
         Qml/Main.qml
         Qml/Components/Timeline.qml
@@ -32,12 +33,18 @@ qt_add_qml_module(quickcut
         Qml/Components/FileBrowser.qml
 )
 
-target_link_libraries(quickcut PRIVATE
+qt_add_resources(ezcut "appicon"
+    PREFIX "/"
+    FILES res/ezcut.png
+)
+
+target_link_libraries(ezcut PRIVATE
     Qt6::Quick
     Qt6::QuickControls2
     Qt6::Multimedia
 )
 
-install(TARGETS quickcut RUNTIME DESTINATION bin)
-install(FILES res/quickcut.desktop DESTINATION share/applications)
-install(FILES res/quickcut.metainfo.xml DESTINATION share/metainfo)
+install(TARGETS ezcut RUNTIME DESTINATION bin)
+install(FILES res/ezcut.desktop DESTINATION share/applications)
+install(FILES res/ezcut.metainfo.xml DESTINATION share/metainfo)
+install(FILES res/ezcut.png DESTINATION share/pixmaps RENAME ezcut.png)

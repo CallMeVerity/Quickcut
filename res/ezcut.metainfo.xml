@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>ezcut</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>E-Z Cut</name>
+  <summary>Lightweight video cutter powered by ffmpeg</summary>
+  <description>
+    <p>E-Z Cut is a minimal video cutter that lets you trim, cut, and mute segments of video files without re-encoding. It uses ffmpeg under the hood for fast, lossless cuts.</p>
+  </description>
+  <developer id="e-z-services">
+    <name>E-Z</name>
+  </developer>
+  <url type="homepage">https://github.com/e-z-services/e-z-cut</url>
+  <url type="bugtracker">https://github.com/e-z-services/e-z-cut/issues</url>
+  <recommends>
+    <id>org.freedesktop.Platform.ffmpeg</id>
+  </recommends>
+  <provides>
+    <binary>ezcut</binary>
+  </provides>
+  <content_rating type="oars-1.1" />
+  <launchable type="desktop-id">ezcut.desktop</launchable>
+</component>

@@ -1,7 +1,8 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Effects
 import QtMultimedia
-import QuickCut
+import ezcut
 
 Window {
     id: root
@@ -10,7 +11,7 @@ Window {
     minimumWidth: 720
     minimumHeight: 480
     visible: true
-    title: "QuickCut 0.1.2"
+    title: "E-Z Cut 0.1.3"
     color: "#0e0e0e"
 
     property int inPointMs: 0
@@ -201,12 +202,19 @@ Window {
                 spacing: 8
                 visible: !root.hasVideo
 
-                Text {
+                Image {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: "QuickCut"
-                    color: "#333333"
-                    font.pixelSize: 28
-                    font.weight: Font.Bold
+                    source: "qrc:/res/ezcut.png"
+                    sourceSize.width: 96
+                    sourceSize.height: 96
+                    width: 96
+                    height: 96
+                    fillMode: Image.PreserveAspectFit
+                    opacity: 0.25
+                    layer.enabled: true
+                    layer.effect: MultiEffect {
+                        saturation: -1.0
+                    }
                 }
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
